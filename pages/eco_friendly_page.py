@@ -16,7 +16,7 @@ class EcoFriendlyPage(BasePage):
     def add_cart(self):
         choice_bella_tank = self.find(loc.choice_bella_tank_loc)
         self.text_one_page = self.find(
-            loc.text_one_page_loc).inner_text()
+            loc.text_one_page_loc)
         choice_bella_tank.hover()
         choice_bella_tank.click()
         size = self.find(loc.size_loc)
@@ -40,7 +40,7 @@ class EcoFriendlyPage(BasePage):
     def check_text_add_cart(self, text1, text2, text3, text4):
         text_add_cart = self.find(loc.data_bind_loc)
         counter_number = self.find(loc.counter_number_loc)
-        assert self.text_one_page == self.text_two_page
+        expect(self.text_one_page).to_have_text(self.text_two_page)
         expect(self.size_text).to_have_text(text1)
         expect(self.color_text).to_have_text(text2)
         expect(text_add_cart).to_have_text(text3)

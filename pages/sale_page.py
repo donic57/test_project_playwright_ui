@@ -1,7 +1,6 @@
 from playwright.sync_api import expect
 from pages.base_page import BasePage
 from pages.locators import sale_page_locators as loc
-from selenium.webdriver import ActionChains
 
 
 class SalePage(BasePage):
@@ -28,9 +27,9 @@ class SalePage(BasePage):
         expect(text_page_women_sale).to_have_text(text)
 
     def check_quantity_items_in_pages(self):
-        self.quantity_items = int(self.find(loc.quantity_items_loc).inner_text())
+        self.quantity_items = self.find(loc.quantity_items_loc)
         item_products_one_page = self.find_all(loc.item_products_one_page_loc)
-        self.number_item_products_one_page = int(len(item_products_one_page))
+        self.number_item_products_one_page = str(len(item_products_one_page))
         button_next = self.find(loc.button_next_loc)
         button_next.hover()
         button_next.click()
@@ -39,7 +38,7 @@ class SalePage(BasePage):
         self.page.wait_for_timeout(1000)
         products = self.find(loc.product_item_link_loc).first
         expect(products).to_be_visible()
-        assert self.quantity_items == self.number_item_products_one_page
+        expect(self.quantity_items).to_have_text(self.number_item_products_one_page)
 
     def click_page_gear(self):
         link_gear_steals = self.find(loc.link_gear_steals_loc)
