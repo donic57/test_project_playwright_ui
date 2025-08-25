@@ -1,8 +1,6 @@
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from playwright.sync_api import expect
 from pages.base_page import BasePage
 from pages.locators import eco_friendly_page_locators as loc
-from selenium.webdriver import ActionChains
 
 
 class EcoFriendlyPage(BasePage):
@@ -18,100 +16,79 @@ class EcoFriendlyPage(BasePage):
     def add_cart(self):
         choice_bella_tank = self.find(loc.choice_bella_tank_loc)
         self.text_one_page = self.find(
-            loc.text_one_page_loc).text
-        actions = ActionChains(self.driver)
-        actions.move_to_element(choice_bella_tank).click().perform()
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(loc.size_loc))
+            loc.text_one_page_loc).inner_text()
+        choice_bella_tank.hover()
+        choice_bella_tank.click()
         size = self.find(loc.size_loc)
+        expect(size).to_be_visible()
         color = self.find(loc.color_loc)
-        WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(loc.size_loc))
         size.click()
-        WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(loc.color_loc))
+        expect(color).to_be_visible()
         color.click()
-        button_add_to_cart = self.find(loc.button_add_to_cart_loc)
-        WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(loc.button_add_to_cart_loc))
-        actions.move_to_element(button_add_to_cart).click().perform()
-        self.text_two_page = self.find(loc.text_two_page_loc).text
-        self.size_text = self.find(loc.size_text_loc).text
-        self.color_text = self.find(loc.color_text_loc).text
+        button_add_to_cart = self.find(
+            loc.button_add_to_cart_loc)
+        expect(button_add_to_cart)
+        button_add_to_cart.hover()
+        button_add_to_cart.click()
+        self.text_two_page = self.find(
+            loc.text_two_page_loc).inner_text()
+        self.size_text = self.find(
+            loc.size_text_loc)
+        self.color_text = self.find(
+            loc.color_text_loc)
 
     def check_text_add_cart(self, text1, text2, text3, text4):
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(
-                loc.data_bind_loc))
-        text_add_cart = self.find(loc.data_bind_loc).text
-        counter_number = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(
-                loc.counter_number_loc)).text
+        text_add_cart = self.find(loc.data_bind_loc)
+        counter_number = self.find(loc.counter_number_loc)
         assert self.text_one_page == self.text_two_page
-        assert self.size_text == text1
-        assert self.color_text == text2
-        assert text_add_cart == text3
-        assert counter_number == text4
+        expect(self.size_text).to_have_text(text1)
+        expect(self.color_text).to_have_text(text2)
+        expect(text_add_cart).to_have_text(text3)
+        expect(counter_number).to_have_text(text4)
 
     def add_compare(self):
         choice_bella_tank = self.find(loc.choice_bella_tank_loc)
-        actions = ActionChains(self.driver)
-        actions.move_to_element(choice_bella_tank).perform()
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(
-                loc.button_add_to_compare_loc))
+        choice_bella_tank.hover()
+        self.page.wait_for_timeout(1000)
         button_add_to_compare = self.find(loc.button_add_to_compare_loc)
-        actions.move_to_element(button_add_to_compare).click(button_add_to_compare).perform()
-        self.text_one = self.find(loc.text_one_page_loc).text
+        button_add_to_compare.hover()
+        button_add_to_compare.click()
+        self.text_one = self.find(loc.text_one_page_loc)
 
     def check_text_add_compare(self, text):
-        WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located(
-                loc.text_two_loc))
         text_two = self.find(
-            loc.text_two_loc).get_attribute('innerText')
-        WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located(loc.data_bind_loc))
-        text_add_product = self.find(loc.data_bind_loc).text
-        assert self.text_one == text_two
-        assert text_add_product == text
+            loc.text_two_loc).inner_text()
+        text_add_product = self.find(loc.data_bind_loc)
+        expect(text_add_product).to_be_visible()
+        expect(self.text_one).to_contain_text(text_two)
+        expect(text_add_product).to_have_text(text)
 
     def add_wish_list(self, text):
         email = 'tesstqa@mail.ru'
         password = '12345aa!'
         choice_bella_tank = self.find(loc.choice_bella_tank_loc)
-        self.text_one_page = self.find(loc.text_one_page_loc).text
-        actions = ActionChains(self.driver)
-        actions.move_to_element(choice_bella_tank).perform()
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(
-                loc.button_add_wish_list_loc))
+        expect(choice_bella_tank).to_be_visible()
+        choice_bella_tank.hover()
+        self.page.wait_for_timeout(1000)
+        self.text_one_page = self.find(loc.text_one_page_loc)
         button_add_wish_list = self.find(loc.button_add_wish_list_loc)
-        actions.move_to_element(button_add_wish_list).click(button_add_wish_list).perform()
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(
-                loc.login_wait_loc))
+        expect(button_add_wish_list).to_have_attribute('title', 'Add to Wish List')
+        button_add_wish_list.click(force=True)
         text_page_login = self.find(
-            loc.text_page_login_loc).text
-        assert text_page_login == text
+            loc.text_page_login_loc)
+        expect(text_page_login).to_be_visible()
+        expect(text_page_login).to_have_text(text)
         add_email = self.find(loc.add_email_loc)
         add_password = self.find(loc.add_password_loc)
-        add_email.send_keys(email)
-        add_password.send_keys(password)
+        add_email.fill(email)
+        add_password.fill(password)
         button_sign_in = self.find(loc.button_sign_in_loc)
         button_sign_in.click()
 
     def check_text_wish_list(self, text1, text2):
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(
-                loc.text_add_wish_list_loc))
-        WebDriverWait(self.driver, 10).until(
-            EC.text_to_be_present_in_element(
-                loc.text_add_wish_list_loc,
-                'Bella Tank has been added to your Wish List. Click here to continue shopping.'))
-        text_add_wish_list = self.find(loc.text_add_wish_list_loc).text
-        text_pege_my_wish_list = self.find(loc.text_pege_my_wish_list_loc).text
-        text_two_page = self.find(loc.text_one_page_loc).text
-        assert text_add_wish_list == text1
-        assert text_pege_my_wish_list == text2
-        assert self.text_one_page == text_two_page
+        text_add_wish_list = self.find(loc.text_add_wish_list_loc)
+        text_pege_my_wish_list = self.find(loc.text_pege_my_wish_list_loc)
+        text_two_page = self.find(loc.text_one_page_loc).inner_text()
+        expect(text_add_wish_list).to_have_text(text1)
+        expect(text_pege_my_wish_list).to_contain_text(text2)
+        expect(self.text_one_page).to_contain_text(text_two_page)

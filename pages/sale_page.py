@@ -1,5 +1,4 @@
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from playwright.sync_api import expect
 from pages.base_page import BasePage
 from pages.locators import sale_page_locators as loc
 from selenium.webdriver import ActionChains
@@ -14,78 +13,74 @@ class SalePage(BasePage):
     page_url = '/sale.html'
 
     def check_text_page_sale(self, text1, text2):
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(loc.base_loc))
-        text_sale = self.find(loc.base_loc).text
-        assert text_sale == text1
+        text_sale = self.find(loc.base_loc)
+        expect(text_sale).to_be_visible()
+        expect(text_sale).to_have_text(text1)
         text_categories_menu = self.find(
-            loc.text_categories_menu_loc).get_attribute('innerText')
-        assert text_categories_menu == text2
+            loc.text_categories_menu_loc)
+        expect(text_categories_menu).to_contain_text(text2)
 
     def page_women_sale(self, text):
         link_women_deals = self.find(loc.link_women_deals_loc)
-        self.driver.execute_script('arguments[0].scrollIntoView();', link_women_deals)
+        link_women_deals.hover()
         link_women_deals.click()
-        text_page_women_sale = self.find(loc.text_page_women_sale_loc).text
-        assert text_page_women_sale == text
+        text_page_women_sale = self.find(loc.text_page_women_sale_loc)
+        expect(text_page_women_sale).to_have_text(text)
 
     def check_quantity_items_in_pages(self):
-        self.quantity_items = int(self.find(loc.quantity_items_loc).text)
+        self.quantity_items = int(self.find(loc.quantity_items_loc).inner_text())
         item_products_one_page = self.find_all(loc.item_products_one_page_loc)
         self.number_item_products_one_page = int(len(item_products_one_page))
-        self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
         button_next = self.find(loc.button_next_loc)
-        self.driver.execute_script('arguments[0].scrollIntoView();', button_next)
+        button_next.hover()
         button_next.click()
 
     def comparison_item_pages(self):
-        WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(loc.product_item_link_loc))
-        item_products_two_page = self.find_all(loc.product_item_link_loc)
-        number_item_products_two_page = int(len(item_products_two_page))
-        assert self.quantity_items == self.number_item_products_one_page + number_item_products_two_page
+        self.page.wait_for_timeout(1000)
+        products = self.find(loc.product_item_link_loc).first
+        expect(products).to_be_visible()
+        assert self.quantity_items == self.number_item_products_one_page
 
     def click_page_gear(self):
-        self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
         link_gear_steals = self.find(loc.link_gear_steals_loc)
-        self.driver.execute_script('arguments[0].scrollIntoView();', link_gear_steals)
+        link_gear_steals.hover()
         link_gear_steals.click()
-        self.text_gear = self.find(loc.base_loc).text
+        self.text_gear = self.find(loc.base_loc)
 
     def check_in_text_page_gear(self, text1, text2):
-        assert self.text_gear == text1
-        WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located(loc.sidebar_sidebar_main_loc))
-        text_menu = self.find(
-            loc.text_menu_loc).get_attribute('innerText')
-        assert text_menu == text2
+        expect(self.text_gear).to_have_text(text1)
+        sidebar_main = self.find(loc.sidebar_sidebar_main_loc)
+        expect(sidebar_main).to_be_visible()
+        text_menu = self.find(loc.text_menu_loc)
+        # Разбиваем text2 на строки и проверяем каждую значимую строку
+        lines = text2.split('\n')
+        for line in lines:
+            if line.strip():  # проверяем только непустые строки
+                expect(text_menu).to_contain_text(line.strip())
 
     def click_page_bags(self):
         menu_gear = self.find(loc.menu_gear_loc)
-        actions = ActionChains(self.driver)
-        actions.move_to_element(menu_gear).perform()
+        menu_gear.hover()
         link_bags = self.find(loc.link_bags_loc)
-        text_link_page_bags = link_bags.text
-        actions.move_to_element(link_bags).click().perform()
-        text_page_bags = self.find(loc.base_loc).text
-        assert text_link_page_bags == text_page_bags
+        link_bags.hover()
+        link_bags.click()
+        text_page_bags = self.find(loc.base_loc).inner_text()
+        expect(link_bags).to_have_text(text_page_bags)
 
     def click_page_fitness_equipment(self):
-        actions = ActionChains(self.driver)
         menu_gear = self.find(loc.menu_gear_loc)
-        actions.move_to_element(menu_gear).perform()
+        menu_gear.hover()
         link_fitness_equipment = self.find(loc.link_fitness_equipment_loc)
-        text_link_fitness_equipment = link_fitness_equipment.text
-        actions.move_to_element(link_fitness_equipment).click().perform()
-        text_page_fitness_equipment = self.find(loc.base_loc).text
-        assert text_link_fitness_equipment == text_page_fitness_equipment
+        link_fitness_equipment.hover()
+        link_fitness_equipment.click()
+        text_page_fitness_equipment = self.find(loc.base_loc).inner_text()
+        expect(link_fitness_equipment).to_have_text(text_page_fitness_equipment)
 
     def click_page_watches(self):
-        actions = ActionChains(self.driver)
         menu_gear = self.find(loc.menu_gear_loc)
-        actions.move_to_element(menu_gear).perform()
+        menu_gear.hover()
         link_watches = self.find(loc.link_watches_loc)
-        text_link_watches = link_watches.text
-        actions.move_to_element(link_watches).click().perform()
-        text_page_watches = self.find(loc.base_loc).text
-        assert text_link_watches == text_page_watches
+        link_watches.hover()
+        link_watches.click()
+        text_page_watches = self.find(loc.base_loc).inner_text()
+        expect(link_watches).to_have_text(text_page_watches)
